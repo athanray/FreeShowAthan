@@ -112,6 +112,7 @@ import { history, redo, undo } from "../helpers/history"
 import { getExtension, getFileName, getMediaLayerType, getMediaStyle, getMediaType, removeExtension, splitPath } from "../helpers/media"
 import { defaultOutput, getCurrentStyle, getFirstActiveOutput, isOutputBound, resolveOutputId, setOutput, toggleOutput, toggleOutputs, updateActiveSceneOutputs } from "../helpers/output"
 import { select } from "../helpers/select"
+import { loadShows } from "../helpers/setShow"
 import { bindSlidesToOutput, checkName, formatToFileName, getLayoutRef, openShow, removeTemplatesFromShow, updateShowsList } from "../helpers/show"
 import { changeSingleOutputStyle, sendMidi } from "../helpers/showActions"
 import { _show } from "../helpers/shows"
@@ -1131,6 +1132,49 @@ const clickActions = {
             })
             return a
         })
+    },
+    // replace the selected project shows with private copies, so they can be edited without changing the original show in the database
+    edit_copy: async (obj: ObjData) => {
+        const projectId = get(activeProject)
+        const projectShows = projectId ? get(projects)[projectId]?.shows : null
+        if (!projectId || !projectShows || !obj.sel?.data?.length) return
+
+        const items = clone(projectShows)
+        const indexes: number[] = removeDuplicates(obj.sel.data.map((a) => Number(a.index))).filter((index: number) => {
+            const ref = items[index]
+            if (!ref || (ref.type !== undefined && ref.type !== "show")) return false
+            return !!get(shows)[ref.id] && !get(shows)[ref.id].private
+        })
+        if (!indexes.length) return
+
+        await loadShows(indexes.map((index) => items[index].id))
+
+        const newIds: { [index: number]: string } = {}
+        indexes.forEach((index) => {
+            const original = items[index]
+            const show = clone(get(showsCache)[original.id])
+            if (!show) return
+
+            show.name = checkName(show.name)
+            show.private = true
+            delete show.locked
+            if (!show.timestamps) show.timestamps = { created: Date.now(), modified: Date.now(), used: null }
+            else show.timestamps.modified = Date.now()
+
+            const newId = uid()
+            history({ id: "UPDATE", newData: { data: show, remember: { project: null } }, oldData: { id: newId }, location: { page: "show", id: "show" } })
+
+            // keep the layout, notes etc. of the project item
+            items[index] = { ...original, id: newId }
+            newIds[index] = newId
+        })
+        if (!Object.keys(newIds).length) return
+
+        history({ id: "UPDATE", newData: { key: "shows", data: items }, oldData: { id: projectId }, location: { page: "show", id: "project_key" } })
+
+        // open the (last) copy in the project, so it is shown as the active project item
+        const lastIndex = Object.keys(newIds).map(Number).pop()!
+        activeShow.set({ id: newIds[lastIndex], index: lastIndex, type: "show" })
     },
     link_provider: (obj: ObjData) => {
         if (obj.sel?.data?.[0]) openLinkProviderDialog(obj.sel.data[0])

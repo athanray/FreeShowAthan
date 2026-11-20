@@ -224,14 +224,15 @@ export function importStage(files: { content: string; name?: string; extension?:
 
 /// //
 
-export function importFromClipboard() {
+// private shows are hidden from the Shows database and only exist in the current project
+export function importFromClipboard(isPrivate = false) {
     navigator.clipboard
         .readText()
         .then((text) => {
             let activeCategory = get(drawerTabsData).shows?.activeSubTab
             if (activeCategory === "all" || activeCategory === "unlabeled") activeCategory = null
 
-            convertText({ text, noFormatting: true, category: activeCategory })
+            convertText({ text, noFormatting: true, category: activeCategory, isPrivate })
         })
         .catch((err) => {
             console.error("Failed to read clipboard contents: ", err)

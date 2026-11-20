@@ -690,6 +690,7 @@
         "all_outputs": "All outputs",
         "specific_outputs": "Specific outputs",
         "toggle_private": "Private",
+        "edit_copy": "Edit copy in this project",
         "view_private": "Show private",
         "link_provider": "Link to another show",
         "unlink_provider": "Unlink from content provider",

@@ -99,7 +99,8 @@ export const contextMenuItems: { [key: string]: ContextMenuItem } = {
     newShowPopup: { label: "new.show", icon: "add", iconColor: "var(--secondary)" },
     newShow: { label: "new.empty_show", icon: "add", iconColor: "var(--secondary)" },
     create_show: { label: "new.show_convert", icon: "slide", iconColor: "var(--secondary)" },
-    // newPrivateShow: { label: "new.private", icon: "private" },
+    newPrivateShow: { label: "new.private", icon: "private", iconColor: "var(--secondary)" },
+    edit_copy: { label: "actions.edit_copy", icon: "duplicate", iconColor: "#97c7ff" },
     private: { label: "actions.toggle_private", icon: "private", iconColor: "#ff5454" },
     link_provider: { label: "actions.link_provider", icon: "bind" },
     unlink_provider: { label: "actions.unlink_provider", icon: "unlink", iconColor: "#ff5454" },
@@ -337,7 +338,7 @@ export const contextMenuLayouts: { [key: string]: string[] } = {
     // PROJECT
     projects: ["newProject", "newFolder", "SEPARATOR", "sort_projects_by"],
     projectTab: ["close"],
-    project: ["newShowPopup", "section"], // "newShow"(empty) , "newPrivateShow"
+    project: ["newShowPopup", "newPrivateShow", "section"], // "newShow"(empty)
     project_button: ["GROUP_rename_only", "duplicate", "delete", "SEPARATOR", "copy_to_template", "SEPARATOR", "archive"], // "open", // "GROUP_rename"
     project_button_readonly: [],
     project_template: ["GROUP_edit", "rename", "delete"],
@@ -349,7 +350,7 @@ export const contextMenuLayouts: { [key: string]: string[] } = {
     project_player: ["remove"],
     // "delete" removed as too many users thought it just removed the show from the project
     // "duplicate" removed as it was people did not get that it only duplicated the reference in project, and not the entire show (keyboard / menu bar shortcuts can be used)
-    project_show: ["GROUP_rename_only", "remove", "SEPARATOR", "mark_played", "private"],
+    project_show: ["GROUP_rename_only", "remove", "SEPARATOR", "mark_played", "SEPARATOR", "edit_copy", "private"],
     project_show_placeholder: ["remove"],
     project_show_placeholder_template: ["GROUP_rename_only", "remove"],
     provider_item: ["GROUP_rename_only", "link_provider", "unlink_provider", "SEPARATOR", "remove", "SEPARATOR", "mark_played", "private"],

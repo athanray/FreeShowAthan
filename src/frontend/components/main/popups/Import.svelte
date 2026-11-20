@@ -177,10 +177,10 @@
         style="margin-top: 5px;"
         variant="outlined"
         on:click={() => {
-            importFromClipboard()
+            importFromClipboard(true)
             activePopup.set(null)
         }}
-        title="actions.paste [Ctrl+Alt+I]"
+        title="Added as a private show (only in this project, not in the Shows database)"
     >
         <Icon id="paste" size={1.2} white />
         {translateText("formats.clipboard")}

@@ -91,6 +91,10 @@
             enabled = !!show.private
             disabled = !!(!enabled && show.locked) // hide
         },
+        edit_copy: () => {
+            const show = $selected.id === "show" ? $shows[$selected.data?.[0]?.id] : null
+            hide = !show || !!show.private
+        },
         use_as_archive: () => {
             const categoryStores = {
                 category_shows: () => $categories,

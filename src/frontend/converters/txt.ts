@@ -48,7 +48,7 @@ export function convertTexts(files: { content: string; name?: string; extension?
 
 // convert a plain text input into a show
 // , onlySlides: boolean = false, { existingSlides } = { existingSlides: {} }
-export function convertText({ name = "", origin = "", category = null, text, noFormatting = false, returnData = false, open = true }: any) {
+export function convertText({ name = "", origin = "", category = null, text, noFormatting = false, returnData = false, open = true, isPrivate = false }: any) {
     // remove empty spaces (as groups [] should be used for empty slides)
     // in "Text edit" spaces can be used to create empty "child" slides
     text = text.replaceAll("\r", "").replaceAll("\n \n", "\n\n")
@@ -138,7 +138,7 @@ export function convertText({ name = "", origin = "", category = null, text, noF
     if (!name) name = plainTextMetadata.title || trimNameFromString(labeled[0]?.text)
 
     const layoutID: string = uid()
-    let show: Show = new ShowObj(false, category, layoutID)
+    let show: Show = new ShowObj(!!isPrivate, isPrivate ? null : category, layoutID)
     if (origin) show.origin = origin
     // , existingSlides
     const { slides, layouts } = createSlides(labeled, noFormatting, autoGroups)
