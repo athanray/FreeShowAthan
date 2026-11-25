@@ -5,9 +5,9 @@ import type { ProjectShowRef } from "../../types/Projects"
 import type { Show } from "../../types/Show"
 import { history } from "../components/helpers/history"
 import { encodeFilePath } from "../components/helpers/media"
-import { activeProject, activeShow, activePopup, projects, projectView, shows } from "../stores"
+import { activePopup, activeProject, activeShow, projects, projectView, shows, special } from "../stores"
 import { newToast } from "../utils/common"
-import { groupTextItems, findRoutine, parseIbadah, songName, songToText, type IbadahItem, type IbadahLine } from "./ibadahParser"
+import { DEFAULT_IBADAH_SETTINGS, findRoutine, groupTextItems, parseIbadah, showNameMatches, songName, songToText, type IbadahItem, type IbadahLine, type IbadahRule, type IbadahSettings } from "./ibadahParser"
 import { convertText } from "./txt"
 
 // Creates a project from a church service order (Tata Ibadah) PDF:
@@ -33,7 +33,8 @@ export async function importIbadah(paths: string[]) {
         return
     }
 
-    const service = parseIbadah(lines)
+    const settings: IbadahSettings = { ...DEFAULT_IBADAH_SETTINGS, ...(get(special).ibadah || {}) }
+    const service = parseIbadah(lines, settings.songWords)
     if (!service.items.length) {
         newToast("No service items found in the PDF")
         return
@@ -48,9 +49,9 @@ export async function importIbadah(paths: string[]) {
         return created.id
     }
 
-    function findExistingShow(keys: string[]) {
+    function findExistingShow(rule: IbadahRule) {
         const matches = Object.entries(get(shows))
-            .filter(([_id, show]) => !show.private && keys.every((key) => (show.name || "").toLowerCase().includes(key)))
+            .filter(([_id, show]) => !show.private && showNameMatches(show.name || "", rule))
             .sort((a, b) => (a[1].name || "").length - (b[1].name || "").length)
         return matches[0]?.[0] || ""
     }
@@ -66,8 +67,8 @@ export async function importIbadah(paths: string[]) {
         // show the reference (bible verse, song numbers...) as a project section
         if (item.reference) projectItems.push({ id: uid(5), type: "section", name: `${item.label} : ${item.reference}`, notes: "" } as ProjectShowRef)
 
-        const routine = findRoutine(item.label)
-        const existing = routine ? findExistingShow(routine.keys) : ""
+        const routine = findRoutine(item.label, service.header, settings.rules)
+        const existing = routine ? findExistingShow(routine) : ""
         if (existing) {
             projectItems.push({ id: existing, type: "show" })
             return

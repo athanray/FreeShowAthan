@@ -154,6 +154,17 @@
         {/each}
     </div>
 
+    <MaterialButton
+        variant="outlined"
+        style="justify-content: start;min-height: 36px;font-weight: normal;margin-top: 5px;width: 100%;"
+        on:click={() => {
+            popupData.set({ previousPopup: "import", previousData: { mode } })
+            activePopup.set("ibadah_settings")
+        }}
+    >
+        <p>Tata Ibadah import settings (which shows are used for the ordinary parts)</p>
+    </MaterialButton>
+
     <HRule title="settings.text_import" />
 
     <div style="display: flex;gap: 5px;">

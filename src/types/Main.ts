@@ -422,6 +422,7 @@ export type Popups =
     | "player"
     | "template_style_overrides"
     | "regex_manager"
+    | "ibadah_settings"
     | "rename"
     | "color"
     | "color_gradient"
