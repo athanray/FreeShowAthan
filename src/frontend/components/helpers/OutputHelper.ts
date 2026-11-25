@@ -5,7 +5,7 @@ import type { ProjectShowRef, ShowRef } from "../../../types/Projects"
 import type { LayoutRef, OutSlide, Slide } from "../../../types/Show"
 import { AudioPlayer } from "../../audio/audioPlayer"
 import { sendMain } from "../../IPC/main"
-import { activeFocus, activeProject, activeShow, focusMode, outLocked, outputs, outputSlideCache, projects, showsCache, special } from "../../stores"
+import { activeFocus, activeProject, activeShow, focusMode, outLocked, outputs, outputSlideCache, presentationData, projects, showsCache, special } from "../../stores"
 import { playFolder, togglePlayingMedia } from "../../utils/shortcuts"
 import { openProjectItem } from "../show/project"
 import { clone } from "./array"
@@ -87,6 +87,20 @@ export class OutputHelper {
     }
 
     private static play(outputId: string, next: boolean, options: Options) {
+        // a PowerPoint slideshow is live: move within its slides first (no matter which item is selected), and go to the next project item at its end
+        const outSlide = this.getOut(outputId).slide || null
+        if (outSlide?.type === "ppt" && !options.playNext) {
+            const stat = get(presentationData)
+            const hasStat = stat?.id === outSlide.id && typeof stat.stat?.position === "number" && typeof stat.stat?.slides === "number"
+            const canMove = !hasStat || (next ? stat.stat.position < stat.stat.slides : stat.stat.position > 1)
+            if (canMove) {
+                sendMain(Main.PRESENTATION_CONTROL, { action: next ? "next" : "previous" })
+                return
+            }
+
+            return this.changeProjectItem(outputId, { id: outSlide.id, type: "ppt" } as any, next, options)
+        }
+
         const show = this.getShow(outputId, next, options)
         if (show) {
             const newSlide = this.getSubsequent(outputId, show, next)
