@@ -1,9 +1,9 @@
 <script lang="ts">
-    import { onDestroy, onMount } from "svelte"
+    import { onMount } from "svelte"
     import { Main } from "../../../../types/IPC/Main"
     import type { ShowRef } from "../../../../types/Projects"
     import { requestMain, sendMain } from "../../../IPC/main"
-    import { activeShow, os, outLocked, outputs, presentationApps, presentationData, special } from "../../../stores"
+    import { os, outLocked, outputs, presentationApps, presentationData, special, startPresentation } from "../../../stores"
     import { translateText } from "../../../utils/language"
     import Icon from "../../helpers/Icon.svelte"
     import { getFileName, removeExtension } from "../../helpers/media"
@@ -41,6 +41,14 @@
         setTimeout(() => (opening ? (retry = true) : ""), 8000)
     }
 
+    // start automatically when the item is played (double click in the project)
+    $: if ($startPresentation === show.id && $presentationApps?.length) autoStart()
+    function autoStart() {
+        startPresentation.set(null)
+        if (opening || $outLocked || outSlide?.id === show.id) return
+        newPresentation()
+    }
+
     function keydown(e: KeyboardEvent) {
         if ($outLocked || !$presentationApps?.length) return
 
@@ -66,9 +74,7 @@
         reset()
     }
 
-    onDestroy(() => {
-        if ($activeShow?.type !== "ppt") sendMain(Main.PRESENTATION_CONTROL, { action: "stop" })
-    })
+    // the slideshow is no longer stopped when just selecting another item (it could be live), it is stopped when other content is played or cleared (see setOutput)
 
     $: if (show.id) reset()
     function reset() {

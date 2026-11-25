@@ -265,7 +265,8 @@ export function setOutput(type: string, data: any, toggle = false, outputId = ""
                 data = wasArray ? allowedIds : allowedIds[0]
             }
 
-            if (type === "slide" && data === null && output.out?.slide?.type === "ppt") {
+            // stop the slideshow when it is cleared or when other content is played instead
+            if (type === "slide" && output.out?.slide?.type === "ppt" && (data === null || (data && data.type !== "ppt"))) {
                 sendMain(Main.PRESENTATION_CONTROL, { action: "stop" })
             }
 

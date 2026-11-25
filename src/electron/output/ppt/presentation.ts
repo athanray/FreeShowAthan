@@ -61,9 +61,15 @@ function stopSlideshow() {
             console.error("Error when ending:", err)
         }
 
+        const stoppedPresentation = openedPresentation
         currentSlideshow = null
         closing = false
         openedPresentation = ""
+        sawViewing = false
+
+        // tell the app the slideshow is over (clears the output if it still shows the PowerPoint window) and go back to FreeShow
+        if (stoppedPresentation) sendToMain(ToMain.PRESENTATION_STATE, { id: stoppedPresentation, stat: {}, info: {}, ended: true })
+        getMainWindow()?.focus()
 
         setTimeout(() => {
             alwaysOnTopDisabled.forEach((id) => {

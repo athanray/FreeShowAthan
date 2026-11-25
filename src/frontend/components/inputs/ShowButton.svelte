@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { ClickEvent } from "../../../types/Main"
     import { AudioPlayer } from "../../audio/audioPlayer"
-    import { activeEdit, activeFocus, activePage, activeProject, activeShow, categories, editingProjectTemplate, effects, focusMode, globalTags, media, notFound, outLocked, outputs, overlayCategories, overlays, playerVideos, playingAudio, projects, projectTemplates, refreshEditSlide, shows, showsCache, special, styles, textCache } from "../../stores"
+    import { activeEdit, activeFocus, activePage, activeProject, activeShow, categories, editingProjectTemplate, effects, focusMode, globalTags, media, notFound, outLocked, outputs, overlayCategories, overlays, playerVideos, playingAudio, projects, projectTemplates, refreshEditSlide, shows, showsCache, special, startPresentation, styles, textCache } from "../../stores"
     import { translateText } from "../../utils/language"
     import { getAccess } from "../../utils/profile"
     import { customIconsColors } from "../../values/customIcons"
@@ -178,6 +178,10 @@
             let out = { path: located.path, muted: shouldBeMuted, loop: shouldLoop, startAt: 0, type, ...mediaStyle, ignoreLayer }
 
             setOutput("background", out)
+        } else if (type === "ppt") {
+            // start the slideshow (the preview picks this up when the item is opened)
+            startPresentation.set(id)
+            setTimeout(() => startPresentation.update((a) => (a === id ? null : a)), 3000)
         } else if (type === "pdf") {
             await playPdf({ id, type: "pdf", name: show.name }, false, false, 0)
         } else if (type === "audio") AudioPlayer.start(id, { name: show.name })
