@@ -18,6 +18,7 @@ import { addDrawerFolder } from "../components/helpers/dropActions"
 import { history } from "../components/helpers/history"
 import { captureCanvas, getExtension, getFileName, removeExtension, setMediaTracks } from "../components/helpers/media"
 import { getActiveOutputs } from "../components/helpers/output"
+import { clearSlide } from "../components/output/clear"
 import { loadShows, saveTextCache } from "../components/helpers/setShow"
 import { checkName, getGlobalGroup, getLabelId } from "../components/helpers/show"
 import { joinTimeBig } from "../components/helpers/time"
@@ -247,7 +248,18 @@ export const mainResponses: MainResponses = {
     [ToMain.RECENTLY_ADDED_FILES]: (data) => updateRecentlyAddedFiles(data.paths),
     [Main.MEDIA_TRACKS]: (data) => setMediaTracks(data),
     [ToMain.API_TRIGGER2]: (data) => triggerAction(data),
-    [ToMain.PRESENTATION_STATE]: (data) => presentationData.set(data),
+    [ToMain.PRESENTATION_STATE]: (data) => {
+        presentationData.set(data)
+
+        // slideshow was closed in PowerPoint: stop showing the (editor) window in the output
+        if (data?.ended) {
+            const isOut = getActiveOutputs(get(outputs), false, true).some((id) => {
+                const slide = get(outputs)[id]?.out?.slide
+                return slide?.type === "ppt" && slide.id === data.id
+            })
+            if (isOut) clearSlide()
+        }
+    },
     // TOP BAR
     [Main.MAXIMIZED]: (data) => windowState.set({ ...windowState, maximized: data }),
     // MEDIA CACHE

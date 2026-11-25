@@ -147,6 +147,7 @@ async function initPresentation(path: string, program = "powerpoint", presenterV
     }
 
     openedPresentation = path
+    sawViewing = false
 
     try {
         // presenter view is only supported by the PowerPoint connector on Windows (patched by scripts/patchSlideshow.js)
@@ -220,10 +221,12 @@ export async function presentationControl(data: { action: string }) {
 
 let stateUpdater: NodeJS.Timeout | null = null
 let stat: null | { state: string; position: number; slides: number } = null
+// true once the slideshow window has actually been seen running, so we can detect when it ends
+let sawViewing = false
 async function updateState() {
     if (!currentSlideshow) return
     if (stateUpdater) clearTimeout(stateUpdater)
-    const state: { id: string; stat: any; info: any } = { id: openedPresentation, stat: {}, info: {} }
+    const state: { id: string; stat: any; info: any; ended?: boolean } = { id: openedPresentation, stat: {}, info: {} }
 
     try {
         state.stat = await currentSlideshow?.stat()
@@ -237,6 +240,16 @@ async function updateState() {
         state.info = await currentSlideshow?.info()
     } catch (err) {
         if (currentSlideshow) console.info("INFO", err)
+        return
+    }
+
+    // the slideshow (and Presenter View) was closed: tell the app so the output stops showing the PowerPoint window
+    if (state.stat?.state === "viewing") {
+        sawViewing = true
+    } else if (sawViewing) {
+        sawViewing = false
+        state.ended = true
+        sendToMain(ToMain.PRESENTATION_STATE, state)
         return
     }
 
