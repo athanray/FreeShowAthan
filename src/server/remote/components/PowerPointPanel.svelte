@@ -55,6 +55,18 @@
         box-shadow: 0 -4px 12px rgb(0 0 0 / 0.4);
     }
 
+    /* phone in landscape: use a narrower panel on the right, so the rest of the remote stays usable */
+    @media (orientation: landscape) and (max-height: 700px) {
+        .ppt {
+            left: auto;
+            right: 0;
+            width: 45vw;
+            max-height: 85vh;
+            border-top-left-radius: 8px;
+            border-left: 2px solid var(--secondary);
+        }
+    }
+
     @media (min-width: 1000px) {
         .ppt {
             left: auto;
