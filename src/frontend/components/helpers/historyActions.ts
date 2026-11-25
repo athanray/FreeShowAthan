@@ -355,8 +355,10 @@ async function handleShows(obj, _data, initializing) {
     }
 
     if (!deleting && Object.keys(get(showsCache)).length >= 100) {
-        if (initializing) save()
+        // always save before the cache is cleared, otherwise newly created/imported shows (e.g. project import, private shows) are lost
+        save()
         setTimeout(() => {
+            save()
             showsCache.set({})
             activeShow.set(null)
         }, 2000)
