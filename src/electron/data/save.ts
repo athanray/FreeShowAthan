@@ -91,11 +91,22 @@ export async function save(data: SaveData) {
     }
 
     // shows
+    const failedShows: string[] = []
     if (data.showsCache) Object.entries(data.showsCache).forEach(saveShow)
     function saveShow([id, value]: [string, any]) {
-        if (!value || !isValidJSON(value)) return
+        if (!value || !isValidJSON(value)) {
+            if (value) failedShows.push(String(value.name || id) + " (invalid data)")
+            return
+        }
         const filePath: string = path.join(showsPath, String(toShowFileName(value.name) || id) + ".show")
         writeFile(filePath, JSON.stringify([id, value]), id)
+
+        // make sure the file really exists after saving
+        if (!doesPathExist(filePath)) failedShows.push(String(value.name || id))
+    }
+    if (failedShows.length) {
+        console.error("Could not save shows:", failedShows)
+        sendToMain(ToMain.ALERT, "Could not save " + failedShows.length + " show(s) to " + showsPath + ":\n" + failedShows.slice(0, 10).join("\n"))
     }
 
     // delete shows
