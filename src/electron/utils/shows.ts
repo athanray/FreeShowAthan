@@ -4,6 +4,15 @@ import type { Show, Shows, TrimmedShow, TrimmedShows } from "../../types/Show"
 import { sendToMain } from "../IPC/main"
 import { deleteFile, getDataFolderPath, parseShow, readFile, readFileAsync, readFolder, readFolderAsync, renameFileAsync } from "./files"
 
+// same rules as formatToFileName in the frontend: characters like " : ? * are not allowed in file names (on Windows)
+export function toShowFileName(name = "") {
+    if (typeof name !== "string") return ""
+    name = name.replaceAll(":", ",")
+    name = name.trim().replace(/[/\\?%*:|│"<>╠┤╡╝╖┐¬]/g, "")
+    if (name.length > 255) name = name.slice(0, 255)
+    return name
+}
+
 export function getAllShows() {
     const showsPath = getDataFolderPath("shows")
     const filesInFolder: string[] = readFolder(showsPath).filter((a) => a.includes(".show") && a.length > 5)
@@ -13,8 +22,8 @@ export function getAllShows() {
 export async function renameShows(shows: { id: string; name: string; oldName: string }[], filePath: string) {
     await Promise.all(shows.map((show) => checkFile(show)))
     async function checkFile(show: { id: string; name: string; oldName: string }) {
-        const oldName = show.oldName + ".show"
-        const newName = (show.name || show.id) + ".show"
+        const oldName = (toShowFileName(show.oldName) || show.oldName) + ".show"
+        const newName = (toShowFileName(show.name) || show.id) + ".show"
 
         await renameFileAsync(filePath, oldName, newName)
     }
