@@ -163,6 +163,7 @@ export async function writeFileAsync(filePath: string, content: string | NodeJS.
     })
 }
 
+export let lastWriteError = ""
 export function writeFile(filePath: string, content: string | NodeJS.ArrayBufferView, id = "") {
     // don't know if it's necessary to check the file
     if (fileContentMatches(content, filePath)) return false
@@ -171,6 +172,7 @@ export function writeFile(filePath: string, content: string | NodeJS.ArrayBuffer
         fs.writeFileSync(filePath, content)
         return true
     } catch (err) {
+        lastWriteError = String((err as Error)?.message || err)
         actionComplete(err as Error, "Error when writing to file")
         if (id) sendToMain(ToMain.SHOW2, { error: "no_write", err: err as Error, id })
         return false

@@ -8,7 +8,11 @@ import { deleteFile, getDataFolderPath, parseShow, readFile, readFileAsync, read
 export function toShowFileName(name = "") {
     if (typeof name !== "string") return ""
     name = name.replaceAll(":", ",")
+    // eslint-disable-next-line no-control-regex
+    name = name.replace(/[\x00-\x1f\x7f\u200b-\u200f\u2028\u2029\ufeff]/g, " ")
     name = name.trim().replace(/[/\\?%*:|│"<>╠┤╡╝╖┐¬]/g, "")
+    // windows removes trailing dots and spaces from file names
+    name = name.replace(/[. ]+$/, "")
     if (name.length > 255) name = name.slice(0, 255)
     return name
 }

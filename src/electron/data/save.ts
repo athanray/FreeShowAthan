@@ -9,7 +9,7 @@ import { startBackup } from "../data/backup"
 import { defaultSettings, defaultSyncedSettings } from "../data/defaults"
 import { _store, safeStoreSet } from "../data/store"
 import { sendMain, sendToMain } from "../IPC/main"
-import { deleteFile, doesPathExist, getDataFolderPath, parseShow, readFile, writeFile } from "../utils/files"
+import { deleteFile, doesPathExist, getDataFolderPath, lastWriteError, parseShow, readFile, writeFile } from "../utils/files"
 import { checkIfMatching, clone, wait } from "../utils/helpers"
 import { renameShows, toShowFileName } from "../utils/shows"
 
@@ -106,7 +106,7 @@ export async function save(data: SaveData) {
     }
     if (failedShows.length) {
         console.error("Could not save shows:", failedShows)
-        sendToMain(ToMain.ALERT, "Could not save " + failedShows.length + " show(s) to " + showsPath + ":\n" + failedShows.slice(0, 10).join("\n"))
+        sendToMain(ToMain.ALERT, "Could not save " + failedShows.length + " show(s) to " + showsPath + ":\n" + failedShows.slice(0, 10).join("\n") + (lastWriteError ? "\n\nError: " + lastWriteError : ""))
     }
 
     // delete shows
