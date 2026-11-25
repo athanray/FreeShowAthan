@@ -57,6 +57,7 @@
     const media_formats = [
         { name: "Lessons.church", title: "ChurchApps\nhttps://lessons.church", extensions: ["json", "olp", "olf"], id: "lessons" },
         { name: "PDF", title: "Added to your project", extensions: ["pdf"], id: "pdf" },
+        { name: "Tata Ibadah (PDF)", title: "Creates a project from a service order PDF\n(songs from the lyrics, ordinary parts from your shows)", extensions: ["pdf"], id: "ibadah" },
         { name: "PowerPoint", title: "Opens the presentation in PowerPoint/Keynote\n(requires the app to be installed)", extensions: [], id: "powerpoint" }
     ]
 
@@ -131,7 +132,7 @@
     </div> -->
 {:else if mode === "project"}
     <div style="display: flex;gap: 5px;">
-        {#each media_formats.filter((a) => ["pdf", "powerpoint"].includes(a.id)) as format}
+        {#each media_formats.filter((a) => ["pdf", "ibadah", "powerpoint"].includes(a.id)) as format}
             <InputRow style="flex: 1;">
                 <MaterialButton
                     variant="outlined"
@@ -146,7 +147,7 @@
                         displayTutorial(format)
                     }}
                 >
-                    <img style="height: 60px;width: 70px;" src="./import-logos/{format.id}.webp" alt="{format.id}-logo" draggable={false} />
+                    <img style="height: 60px;width: 70px;" src="./import-logos/{format.id === 'ibadah' ? 'pdf' : format.id}.webp" alt="{format.id}-logo" draggable={false} />
                     <p>{format.name}</p>
                 </MaterialButton>
             </InputRow>
@@ -243,7 +244,7 @@
                         displayTutorial(format)
                     }}
                 >
-                    <img style="height: 60px;width: 70px;" src="./import-logos/{format.id}.webp" alt="{format.id}-logo" draggable={false} />
+                    <img style="height: 60px;width: 70px;" src="./import-logos/{format.id === 'ibadah' ? 'pdf' : format.id}.webp" alt="{format.id}-logo" draggable={false} />
                     <p>{format.name}</p>
                 </MaterialButton>
             </InputRow>

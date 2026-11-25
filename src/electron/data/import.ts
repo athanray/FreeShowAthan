@@ -45,6 +45,7 @@ const specialImports = {
         return data
     },
     pdf: (files: string[]) => files,
+    ibadah: (files: string[]) => files,
     powerkey: (files: string[]) => files,
     sqlite: async (files: string[]) => {
         const data: FileData[] = []

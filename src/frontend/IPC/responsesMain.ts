@@ -37,6 +37,7 @@ import { convertMediaShout } from "../converters/mediashout"
 import { convertOpenLP } from "../converters/openlp"
 import { convertOpenSong } from "../converters/opensong"
 import { convertPowerpoint } from "../converters/powerpoint/powerpointImporter"
+import { importIbadah } from "../converters/ibadah"
 import { addToProject, importProject, updateRecentlyAddedFiles } from "../converters/project"
 import { convertProPresenter } from "../converters/propresenter"
 import { convertQuelea } from "../converters/quelea"
@@ -643,7 +644,8 @@ export const mainResponses: MainResponses = {
                 })
                 updateRecentlyAddedFiles()
             },
-            powerkey: () => addToProject("ppt", mainData as string[])
+            powerkey: () => addToProject("ppt", mainData as string[]),
+            ibadah: () => importIbadah(mainData as string[])
         }
         if (mainData.find((dataValue) => typeof dataValue === "string")) {
             if (!receiveFilePathIMPORT[a.channel]) return
