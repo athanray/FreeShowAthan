@@ -223,6 +223,11 @@ let stateUpdater: NodeJS.Timeout | null = null
 let stat: null | { state: string; position: number; slides: number } = null
 // true once the slideshow window has actually been seen running, so we can detect when it ends
 let sawViewing = false
+let lastInfo: any = null
+let lastInfoPath = ""
+let lastInfoTime = 0
+// check status often while the slideshow is running, so the output is cleared quickly when it is closed
+const fastUpdateInterval = 500
 async function updateState() {
     if (!currentSlideshow) return
     if (stateUpdater) clearTimeout(stateUpdater)
@@ -236,11 +241,19 @@ async function updateState() {
         return
     }
 
-    try {
-        state.info = await currentSlideshow?.info()
-    } catch (err) {
-        if (currentSlideshow) console.info("INFO", err)
-        return
+    // slide titles/notes rarely change, so don't request them on every (fast) status check
+    if (lastInfo && lastInfoPath === openedPresentation && Date.now() - lastInfoTime < 5000) {
+        state.info = lastInfo
+    } else {
+        try {
+            state.info = await currentSlideshow?.info()
+            lastInfo = state.info
+            lastInfoPath = openedPresentation
+            lastInfoTime = Date.now()
+        } catch (err) {
+            if (currentSlideshow) console.info("INFO", err)
+            return
+        }
     }
 
     // the slideshow (and Presenter View) was closed: tell the app so the output stops showing the PowerPoint window
@@ -258,5 +271,5 @@ async function updateState() {
 
     // update state every once in a while in case presentation window is in focus
     if (stateUpdater) clearTimeout(stateUpdater)
-    stateUpdater = setTimeout(updateState, 5000)
+    stateUpdater = setTimeout(updateState, sawViewing ? fastUpdateInterval : 5000)
 }
