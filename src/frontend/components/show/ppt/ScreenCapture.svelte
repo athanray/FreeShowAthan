@@ -28,8 +28,19 @@
     let chooseWindow: any[] = []
     let chosenWindow: any = null
 
-    function receiveWindows(a: any) {
+    // The editing window of the app is titled "<file> - PowerPoint". It must never be captured, as it would show the
+    // app itself (instead of the slideshow) while the slideshow is starting, paused or has ended.
+    // Only the slide show window (e.g. "PowerPoint Slide Show - <file>") should be used.
+    function isEditorWindow(name: string, appName: string) {
+        const escapedAppName = appName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        return new RegExp("\\s[-\u2013\u2014]\\s*" + escapedAppName + "\\s*$", "i").test(name.trim())
+    }
+
+    function receiveWindows(allWindows: any) {
         chosenWindow = null
+
+        let appName = ($special.presentationApp || "PowerPoint").split(" ")[0]
+        let a = allWindows.filter((window: any) => !isEditorWindow(window.name, appName))
 
         let savedScreen = $projects[$activeProject || ""]?.shows?.find((a) => a.id === path)?.data?.screenName
         if (savedScreen) {
@@ -41,7 +52,6 @@
         }
 
         let fileName = getFileName(path)
-        let appName = ($special.presentationApp || "PowerPoint").split(" ")[0]
 
         let windows = a.filter((a) => a.name.includes(appName) && a.name.includes(fileName) && !a.name.includes(fileName + " - " + appName))
         if (!windows.length) windows = a.filter((a) => a.name.includes(removeExtension(fileName)) && a.name.includes(appName))
