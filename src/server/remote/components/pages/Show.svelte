@@ -5,10 +5,11 @@
     import Dropdown from "../../../common/components/Dropdown.svelte"
     import Icon from "../../../common/components/Icon.svelte"
     import { translate } from "../../util/helpers"
-    import { GetLayout } from "../../util/output"
+    import { GetLayout, nextSlide } from "../../util/output"
     import { send } from "../../util/socket"
     import { _set, active, activeShow, activeTab, dictionary, isCleared, outLayout, outShow, outSlide, textCache } from "../../util/stores"
     import Clear from "../show/Clear.svelte"
+    import PreviewSlide from "../show/Slide.svelte"
     import Slides from "../show/Slides.svelte"
     import AddGroups from "./AddGroups.svelte"
     import GroupsEdit from "./GroupsEdit.svelte"
@@ -21,6 +22,11 @@
     $: _set("layout", activeLayout)
 
     $: slideNum = $outShow?.id === $activeShow?.id ? ($outSlide ?? -1) : -1
+
+    // previous / current / next slide of the OUTPUT (not necessarily the opened show)
+    $: outRef = $outShow && $outLayout && $outSlide !== null && $outSlide >= 0 ? GetLayout($outShow, $outLayout) : null
+    $: previousOutIndex = outRef ? nextSlide(outRef, $outSlide as number, true) : null
+    $: nextOutIndex = outRef ? nextSlide(outRef, $outSlide as number) : null
 
     // Memoize totalSlides calculation
     $: totalSlides = activeLayout ? activeLayout.length : 0
@@ -170,6 +176,31 @@
 
         {#if !$isCleared.all}
             <div class="controls-section">
+                {#if outRef}
+                    <div class="out-previews">
+                        <div class="out-preview">
+                            <span class="out-label">{translate("preview._previous_slide", $dictionary)}</span>
+                            {#if previousOutIndex !== null}
+                                <PreviewSlide outSlide={previousOutIndex} preview />
+                            {:else}
+                                <div class="out-empty">—</div>
+                            {/if}
+                        </div>
+                        <div class="out-preview current">
+                            <span class="out-label">{translate("remote.output", $dictionary)}</span>
+                            <PreviewSlide outSlide={$outSlide ?? 0} preview />
+                        </div>
+                        <div class="out-preview">
+                            <span class="out-label">{translate("preview._next_slide", $dictionary)}</span>
+                            {#if nextOutIndex !== null}
+                                <PreviewSlide outSlide={nextOutIndex} preview />
+                            {:else}
+                                <div class="out-empty">{translate("remote.end", $dictionary)}</div>
+                            {/if}
+                        </div>
+                    </div>
+                {/if}
+
                 <div class="slide-progress">
                     <!-- disabled={slideNum <= 0}  -->
                     <Button on:click={() => navigate("previous_slide")} variant="outlined" center compact>
@@ -229,6 +260,47 @@
 
     .controls-section :global(.clearAll) {
         border-radius: 8px 8px 0 0 !important;
+    }
+
+    .out-previews {
+        display: flex;
+        gap: 6px;
+        padding: 6px 6px 0;
+    }
+
+    .out-preview {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        opacity: 0.75;
+    }
+
+    .out-preview.current {
+        opacity: 1;
+        flex: 1.3;
+        outline: 2px solid var(--secondary);
+        outline-offset: 1px;
+    }
+
+    .out-label {
+        font-size: 0.65em;
+        text-align: center;
+        opacity: 0.8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .out-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        aspect-ratio: 16 / 9;
+        font-size: 0.8em;
+        opacity: 0.5;
     }
 
     .slide-progress {

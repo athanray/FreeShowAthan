@@ -328,6 +328,7 @@
         "recording": "Right click a screen or window to start a recording."
     },
     "remote": {
+        "output": "Output",
         "projects": "Projects",
         "project": "Project",
         "shows": "Shows",
