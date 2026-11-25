@@ -159,7 +159,7 @@
 
         // alert if show category has a template
         const categoryId = $showsCache[$activeShow.id]?.category || ""
-        const categoryTemplate = $categories[categoryId]?.template || ""
+        const categoryTemplate = $showsCache[$activeShow.id]?.private ? "" : $categories[categoryId]?.template || ""
         if (categoryTemplate) {
             if (!alerted) {
                 alertMessage.set("tips.category_template")

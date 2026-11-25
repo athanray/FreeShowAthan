@@ -756,7 +756,7 @@
         // alert if category has template
         if (hasLoaded && !shownTemplateTip && ($activeEdit.type || "show") === "show") {
             const categoryId = $showsCache[$activeShow?.id || ""]?.category || ""
-            const categoryTemplate = $categories[categoryId]?.template || ""
+            const categoryTemplate = $showsCache[$activeShow?.id || ""]?.private ? "" : $categories[categoryId]?.template || ""
             if (categoryTemplate) {
                 alertMessage.set("tips.category_template")
                 activePopup.set("alert")

@@ -53,7 +53,7 @@
     function removeShowTemplate() {
         // alert if show category has a template
         const categoryId = $showsCache[showId]?.category || ""
-        const categoryTemplate = $categories[categoryId]?.template || ""
+        const categoryTemplate = $showsCache[showId]?.private ? "" : $categories[categoryId]?.template || ""
         if (categoryTemplate) {
             alertMessage.set("tips.category_template")
             activePopup.set("alert")

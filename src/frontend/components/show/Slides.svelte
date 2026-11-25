@@ -196,7 +196,7 @@
         let createItems = false
 
         // override with category template if any
-        const categoryTemplate = $categories[currentShow?.category || ""]?.template || ""
+        const categoryTemplate = currentShow?.private ? "" : $categories[currentShow?.category || ""]?.template || "" // private shows use their own template
         if (categoryTemplate && $templates[categoryTemplate]) {
             currentTemplate = categoryTemplate
             createItems = true

@@ -1159,6 +1159,13 @@ const clickActions = {
             show.name = checkName(show.name)
             show.private = true
             delete show.locked
+
+            // private shows ignore the category template, so keep the look the original had from it
+            const categoryTemplate = get(categories)[show.category || ""]?.template
+            if (categoryTemplate && get(templates)[categoryTemplate]) {
+                if (!show.settings) show.settings = {} as any
+                show.settings.template = categoryTemplate
+            }
             if (!show.timestamps) show.timestamps = { created: Date.now(), modified: Date.now(), used: null }
             else show.timestamps.modified = Date.now()
 
