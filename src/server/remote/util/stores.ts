@@ -40,6 +40,7 @@ export let outSlide: Writable<number | null> = writable(null)
 export let outLayout: Writable<string | null> = writable(null)
 export let styleRes: Writable<any> = writable(null) // this is actually aspect ratio
 export let outShow: Writable<Show | null> = writable(null)
+export let pptData: Writable<{ id: string; position: number; slides: number; title: string; notes: string; image?: string } | null> = writable(null)
 export let layout: Writable<any[] | null> = writable(null)
 export let isCleared = writable({ all: true, background: true, slide: true, overlays: true, audio: true, slideTimers: true })
 
@@ -140,6 +141,7 @@ export const _ = {
     outLayout,
     styleRes,
     outShow,
+    pptData,
     layout,
     isCleared,
     projectsOpened,

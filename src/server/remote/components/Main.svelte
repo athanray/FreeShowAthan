@@ -16,6 +16,7 @@
     import Lyrics from "./pages/Lyrics.svelte"
     import Project from "./pages/Project.svelte"
     import Scripture from "./pages/Scripture.svelte"
+    import PowerPointPanel from "./PowerPointPanel.svelte"
     import Show from "./pages/Show.svelte"
     import ShowContent from "./pages/ShowContent.svelte"
     import Shows from "./pages/Shows.svelte"
@@ -127,6 +128,8 @@
 </script>
 
 <svelte:window on:keydown={keydown} />
+
+<PowerPointPanel />
 
 {#if isTablet}
     <section class="tabletMode">

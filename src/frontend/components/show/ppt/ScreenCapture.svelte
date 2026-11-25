@@ -1,6 +1,6 @@
 <script lang="ts">
     import { Main } from "../../../../types/IPC/Main"
-    import { requestMain } from "../../../IPC/main"
+    import { requestMain, sendMain } from "../../../IPC/main"
     import { activeProject, outLocked, outputs, presentationData, projects, special } from "../../../stores"
     import { triggerClickOnEnterSpace } from "../../../utils/clickable"
     import { getFileName, removeExtension } from "../../helpers/media"
@@ -84,6 +84,8 @@
         if (findWindowTimeout) clearTimeout(findWindowTimeout)
 
         chosenWindow = screenData
+        // let the app know which window to send pictures of to the remote
+        if (screenData?.id) sendMain(Main.PRESENTATION_WINDOW, { id: screenData.id })
 
         // save chosen screen in project item
         if (save) {

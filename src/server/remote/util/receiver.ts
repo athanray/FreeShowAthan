@@ -122,6 +122,13 @@ export const receiver = {
             _set("outShow", _get("activeShow"))
         }
     },
+    PPT: (data: any) => {
+        if (data?.ended) return _set("pptData", null)
+
+        // keep the last picture if a new one was not captured this time
+        const previous = _get("pptData")
+        _set("pptData", { ...data, image: data.image || (previous?.id === data.id ? previous?.image : "") })
+    },
     OUT_DATA: (data: any) => {
         _set("outData", data)
         send("API:get_cleared")

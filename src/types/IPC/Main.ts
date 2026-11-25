@@ -114,6 +114,7 @@ export enum Main {
     SLIDESHOW_GET_APPS = "SLIDESHOW_GET_APPS",
     START_SLIDESHOW = "START_SLIDESHOW",
     PRESENTATION_CONTROL = "PRESENTATION_CONTROL",
+    PRESENTATION_WINDOW = "PRESENTATION_WINDOW",
     START = "START",
     STOP = "STOP",
     SERVER_DATA = "SERVER_DATA",
@@ -240,6 +241,7 @@ export interface MainSendPayloads {
     [Main.CAPTURE_SLIDE]: { output: { [key: string]: Output }; resolution: Resolution }
     [Main.START_SLIDESHOW]: { path: string; program: string; presenterView?: boolean }
     [Main.PRESENTATION_CONTROL]: { action: string }
+    [Main.PRESENTATION_WINDOW]: { id: string }
     [Main.START]: { ports: { [key: string]: number }; max: number; disabled: { [key: string]: boolean }; data: { [key: string]: ServerData } }
     [Main.SERVER_DATA]: { [key: string]: any }
     [Main.WEBSOCKET_START]: { port?: number; password?: string }

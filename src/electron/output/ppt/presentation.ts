@@ -1,8 +1,10 @@
+import { desktopCapturer } from "electron"
 import os from "os"
 import Slideshow from "slideshow"
 import { getMainWindow, isProd } from "../.."
 import { ToMain } from "../../../types/IPC/ToMain"
 import { sendToMain } from "../../IPC/main"
+import { getConnections, toServer } from "../../servers"
 import { OutputHelper } from "../OutputHelper"
 import { OutputValues } from "../helpers/OutputValues"
 
@@ -68,7 +70,10 @@ function stopSlideshow() {
         sawViewing = false
 
         // tell the app the slideshow is over (clears the output if it still shows the PowerPoint window) and go back to FreeShow
-        if (stoppedPresentation) sendToMain(ToMain.PRESENTATION_STATE, { id: stoppedPresentation, stat: {}, info: {}, ended: true })
+        if (stoppedPresentation) {
+            sendToMain(ToMain.PRESENTATION_STATE, { id: stoppedPresentation, stat: {}, info: {}, ended: true })
+            endRemote()
+        }
         getMainWindow()?.focus()
 
         setTimeout(() => {
@@ -269,13 +274,60 @@ async function updateState() {
         sawViewing = false
         state.ended = true
         sendToMain(ToMain.PRESENTATION_STATE, state)
+        endRemote()
         return
     }
 
     // return state
     sendToMain(ToMain.PRESENTATION_STATE, state)
+    sendToRemote(state)
 
     // update state every once in a while in case presentation window is in focus
     if (stateUpdater) clearTimeout(stateUpdater)
     stateUpdater = setTimeout(updateState, sawViewing ? fastUpdateInterval : 5000)
+}
+
+// REMOTE (phone): send the position, title, notes and a picture of the slideshow
+let previewSourceId = ""
+export function setPresentationWindow(data: { id: string }) {
+    previewSourceId = data?.id || ""
+}
+
+let lastImagePosition = -1
+let lastImageTime = 0
+let capturing = false
+async function sendToRemote(state: { id: string; stat: any; info: any }) {
+    if (!getConnections("REMOTE")) return
+
+    const position: number = state.stat?.position || 0
+    const data: { [key: string]: any } = {
+        id: state.id,
+        position,
+        slides: state.stat?.slides || 0,
+        title: state.info?.titles?.[position - 1] || "",
+        notes: state.info?.notes?.[position - 1] || ""
+    }
+
+    const now = Date.now()
+    if (previewSourceId && !capturing && (position !== lastImagePosition || now - lastImageTime > 1500)) {
+        capturing = true
+        lastImagePosition = position
+        lastImageTime = now
+        try {
+            const sources = await desktopCapturer.getSources({ types: ["window"], thumbnailSize: { width: 640, height: 360 } })
+            const source = sources.find((a) => a.id === previewSourceId)
+            if (source && !source.thumbnail.isEmpty()) data.image = "data:image/jpeg;base64," + source.thumbnail.toJPEG(60).toString("base64")
+        } catch (err) {
+            console.info("Could not capture slideshow for remote:", err)
+        }
+        capturing = false
+    }
+
+    toServer("REMOTE", { channel: "PPT", data })
+}
+
+function endRemote() {
+    previewSourceId = ""
+    lastImagePosition = -1
+    toServer("REMOTE", { channel: "PPT", data: { ended: true } })
 }
