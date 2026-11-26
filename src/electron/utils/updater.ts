@@ -5,6 +5,9 @@ import { isProd } from ".."
 // let notification: Notification | null
 
 export default async function checkForUpdates() {
+    // updates are disabled in this custom build, so they never replace the modifications
+    return
+    // eslint-disable-next-line no-unreachable
     if (!isProd) return
 
     try {

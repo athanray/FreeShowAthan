@@ -27,6 +27,9 @@ export async function getUpdateData(currentVersion: string, includeBeta: boolean
 }
 
 export function checkForUpdates(currentVersion: string) {
+    // updates are disabled in this custom build
+    return
+    // eslint-disable-next-line no-unreachable
     if (get(isDev) || get(alertUpdates) === false) return
     const includeBeta = currentVersion.includes("-beta") || get(special).betaVersionAlert
 

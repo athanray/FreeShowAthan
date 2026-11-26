@@ -68,10 +68,11 @@
     }
 </script>
 
+<!-- update check removed in this custom build
 <MaterialButton variant="outlined" style="width: 100%;margin-bottom: 20px;" icon="loop" on:click={() => activePopup.set("update_manager")}>
     <T id="about.check_updates" />
-    <!-- <T id="popup.update_manager" /> -->
 </MaterialButton>
+-->
 
 <MaterialToggleSwitch label="settings.popup_before_close" checked={$special.showClosePopup || false} defaultValue={false} on:change={(e) => updateSpecial(e.detail, "showClosePopup")} />
 

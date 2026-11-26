@@ -30,9 +30,7 @@
 
     <p style="font-size: 0.8em;margin-top: 2px;">
         <span style="opacity: 0.8;">v{$version}</span>
-        <MaterialButton variant="outlined" style="margin-left: 5px;display: inline-flex;min-height: 0;padding: 0 5px;vertical-align: baseline;" on:click={() => activePopup.set("update_manager")} white>
-            <T id="about.check_updates" />
-        </MaterialButton>
+        <!-- update check removed in this custom build -->
     </p>
 
     <!-- <p>
