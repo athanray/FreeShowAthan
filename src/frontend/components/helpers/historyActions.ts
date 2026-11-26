@@ -425,7 +425,9 @@ function handleSlides(obj, data, initializing) {
         if (data.layout?.backgrounds?.[1]) data.layout.backgrounds.reverse()
     }
 
-    slides.forEach((slide, i) => processSlide(slide, i, { deleting, data, showId, layout, ref, index, type }))
+    // parent slides without their own index are all inserted at the same position, so offset each one to keep the original order
+    const batch = { parentsAdded: 0, offset: !hasIndices }
+    slides.forEach((slide, i) => processSlide(slide, i, { deleting, data, showId, layout, ref, index, type, batch }))
 
     if (deleting) {
         if (type === "delete" || type === "delete_group") {
@@ -449,7 +451,7 @@ function handleSlides(obj, data, initializing) {
     else obj.newData = clone(data)
 }
 
-function processSlide(slide, i, { deleting, data, showId, layout, ref, index, type }) {
+function processSlide(slide, i, { deleting, data, showId, layout, ref, index, type, batch }) {
     let slideId = slide.id
     delete slide.id
     const slideIndex = slide.index ?? index
@@ -460,7 +462,7 @@ function processSlide(slide, i, { deleting, data, showId, layout, ref, index, ty
     }
 
     if (deleting) removeSlideFromLayout(showId, layout, slideId, slideIndex, isParent, type)
-    else addSlideToLayout(slide, slideId, slideIndex, i, showId, layout, ref, data, index, isParent)
+    else addSlideToLayout(slide, slideId, slideIndex, i, showId, layout, ref, data, index, isParent, batch)
 }
 
 function removeSlideFromLayout(showId, layout, slideId, slideIndex, isParent, type) {
@@ -512,7 +514,7 @@ function promoteFirstChildInLayout(layoutSlides, slideId, currentSlide, slides, 
     })
 }
 
-function addSlideToLayout(slide, slideId, slideIndex, i, showId, layout, ref, data, index, isParent) {
+function addSlideToLayout(slide, slideId, slideIndex, i, showId, layout, ref, data, index, isParent, batch?) {
     const slideData = clone(slide)
     if (data.addItems === false) slideData.items = []
     _show(showId).slides([slideId]).add([slideData], isParent)
@@ -530,7 +532,8 @@ function addSlideToLayout(slide, slideId, slideIndex, i, showId, layout, ref, da
 
     if (isParent) {
         const refAtIndex = ref[slideIndex - 1]?.parent || ref[slideIndex - 1]
-        const slideLayoutIndex = refAtIndex ? refAtIndex.index + 1 : (slideIndex ?? ref.length)
+        let slideLayoutIndex = refAtIndex ? refAtIndex.index + 1 : (slideIndex ?? ref.length)
+        if (batch?.offset) slideLayoutIndex += batch.parentsAdded++
         _show(showId).layouts([layout]).slides([slideLayoutIndex]).add([layoutValue])
         const updatedRef = _show(showId).layouts([layout]).ref()[0] || []
         index = updatedRef.find((a) => a.id === layoutValue.id)?.layoutIndex ?? index
