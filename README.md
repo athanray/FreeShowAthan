@@ -10,6 +10,7 @@
 
 <p align='center'>
   FreeShow is a free software with a user-friendly interface that offers powerful features for creating and editing slideshows. 
+  Modifikasi pada GitHub ini hanyalah beberapa pengubahan minor yang sedikit lebih mendekati penggunaan EasyWorship. Utamakan release resmi!
 </p>
 
 <p align='center'>
