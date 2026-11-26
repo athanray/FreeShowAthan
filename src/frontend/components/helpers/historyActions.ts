@@ -425,6 +425,18 @@ function handleSlides(obj, data, initializing) {
         if (data.layout?.backgrounds?.[1]) data.layout.backgrounds.reverse()
     }
 
+    // add all new slide data first, so the layout ref (which drops children whose slide does not exist yet) keeps every child of a pasted group
+    if (!deleting) {
+        slides.forEach((slide) => {
+            if (!slide.id) return
+            const slideData = clone(slide)
+            delete slideData.id
+            delete slideData.index
+            if (data.addItems === false) slideData.items = []
+            _show(showId).slides([slide.id]).add([slideData], slide.group !== null)
+        })
+    }
+
     // parent slides without their own index are all inserted at the same position, so offset each one to keep the original order
     const batch = { parentsAdded: 0, offset: !hasIndices }
     slides.forEach((slide, i) => processSlide(slide, i, { deleting, data, showId, layout, ref, index, type, batch }))
