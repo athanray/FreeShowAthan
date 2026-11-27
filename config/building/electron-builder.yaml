@@ -1,6 +1,6 @@
 appId: app.freeshow
-productName: FreeShow
-artifactName: FreeShow-${version}-${arch}.${ext}
+productName: FreeShow Specified
+artifactName: FreeShow-Specified-${version}-${arch}.${ext}
 
 files:
     - build/electron/**

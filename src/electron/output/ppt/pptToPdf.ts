@@ -9,7 +9,7 @@ import { openURL } from "../../IPC/responsesMain"
 import { getDataFolderPath, sanitizeFileName, selectFilesDialog } from "../../utils/files"
 
 export async function pptToPdf() {
-    const files = await selectFilesDialog("", { name: "PowerPoint", extensions: ["ppt", "pptx"] }, false)
+    const files = await selectFilesDialog("", { name: "PowerPoint", extensions: ["ppt", "pptx", "pptm"] }, false)
     if (!files.length) return
 
     const pptPath = files[0]
